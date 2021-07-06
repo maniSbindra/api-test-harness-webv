@@ -1,0 +1,20 @@
+[
+    {
+        "_id": {
+            "$oid": "60e2e8fe7ed72f0001bf3a41"
+        },
+        "Name": "The Go Programming Language",
+        "Price": 20,
+        "Category": "Computer Programming",
+        "Author": "Alan Donovan"
+    },
+    {
+        "_id": {
+            "$oid": "60e2e8fe7ed72f0001bf3a46"
+        },
+        "Name": "Design Patterns",
+        "Price": 54.93,
+        "Category": "Computers",
+        "Author": "Ralph Johnson"
+    }
+]

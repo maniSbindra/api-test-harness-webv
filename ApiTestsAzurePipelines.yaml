@@ -1,0 +1,31 @@
+trigger: none
+
+variables:
+  system.debug: true
+  
+pool:
+  vmImage: 'Ubuntu 18.04'
+  
+steps:
+
+- script: |
+      cd $(System.DefaultWorkingDirectory)
+
+      docker-compose -f BooksApi/dockerComposeBooksApiTest.yml build --no-cache  --build-arg ENVIRONMENT=local
+      
+      docker-compose -f BooksApi/dockerComposeBooksApiTest.yml up --exit-code-from webv | tee $(System.DefaultWorkingDirectory)/dc.log
+  displayName: "Execute API Tests"
+
+- script: |
+      # Pass parameters: path to docker-compose log file, path to output Junit file, and path to scripts directory
+      bash $(System.DefaultWorkingDirectory)/TestFiles/scripts/webvToJunit.sh $(System.DefaultWorkingDirectory)/dc.log $(System.DefaultWorkingDirectory)/junit.xml $(System.DefaultWorkingDirectory)/TestFiles/scripts
+  displayName: "Convert Test Execution Log output to JUnit Format"
+
+- task: PublishTestResults@2
+  displayName: 'Validate and Publish Component Test Results'
+  inputs:
+    testResultsFormat: JUnit
+    testResultsFiles: 'junit.xml'
+    searchFolder: $(System.DefaultWorkingDirectory)
+    testRunTitle: 'webapitestrestults'
+    failTaskOnFailedTests: true

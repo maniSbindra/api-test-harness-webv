@@ -1,0 +1,74 @@
+{
+    "requests": [
+      {
+        "path": "/api/books",
+        "verb": "POST",
+        "tag": "CreateBookValidRequest",
+        "failOnValidationError": true,
+        "body": "{\"Name\":\"Kubernetes Up and Running\",\r\n\"Price\":25,\r\n\"Category\":\"Computer Programming\",\r\n\"Author\":\"Adam Barr\"\r\n}",
+        "contentMediaType": "application/json-patch+json",
+        "validation": {
+          "statusCode": 201,
+          "contentType": "application/json",
+          "jsonObject": [
+            {
+              "field": "Id"
+            },
+            {
+              "field": "Name",
+              "value": "Kubernetes Up and Running"
+            },
+            {
+                "field": "Price",
+                "value": 25
+            }
+          ]
+        }
+      },
+      {
+        "path": "/api/books",
+        "verb": "POST",
+        "tag": "CreateBookInvalidPrice",
+        "failOnValidationError": true,
+        "body": "{\"Name\":\"Kubernetes Up and Running\",\r\n\"Price\":\"twenty five\",\r\n\"Category\":\"Computer Programming\",\r\n\"Author\":\"Adam Barr\"\r\n}",
+        "contentMediaType": "application/json-patch+json",
+        "validation": {
+          "statusCode": 400,
+          "contentType": "application/problem+json;",
+          "jsonObject": [
+            {
+              "field": "errors",
+              "validation": {
+                "jsonObject": [
+                  { "field": "Price" }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "path": "/api/books/60e304aac7b8d60001b2d3cd",
+        "verb": "Get",
+        "tag": "GetNonExistentBook",
+        "failOnValidationError": true,
+        "validation": {
+          "statusCode": 404,
+          "contentType": "application/problem+json;"
+        }
+      },
+      {
+        "path": "/api/books/60e2e8fe7ed72f0001bf3a41",
+        "verb": "Get",
+        "tag": "GetExistingBook",
+        "failOnValidationError": true,
+        "validation": {
+          "statusCode": 200,
+          "contentType": "application/json",
+          "exactMatch": "{\"Id\":\"60e2e8fe7ed72f0001bf3a41\",\"Name\":\"The Go Programming Language\",\"Price\":20.0,\"Category\":\"Computer Programming\",\"Author\":\"Alan Donovan\"}"
+        }
+      }
+      
+    ]
+  }
+  

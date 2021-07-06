@@ -1,0 +1,59 @@
+version: '3'
+services:
+  booksapi:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - '5011:80'
+    networks:
+      - books
+    # volumes:
+    #   - ${HOME}/.azure:/root/.azure
+    environment:
+      - BookstoreDatabaseSettings__ConnectionString=mongodb://mongo:27017
+      - BookstoreDatabaseSettings__DatabaseName=BookstoreDb
+      - BookstoreDatabaseSettings__BooksCollectionName=Books
+    
+  mongo:
+    container_name: books.mongo
+    image: mongo:4.4
+    networks:
+      - books
+  
+  mongo-import:
+    image: mongo:4.4
+    depends_on:
+    - mongo
+    volumes:
+    - ../TestFiles:/testFiles/
+    - ../TestFiles/scripts/import.sh:/command/import.sh
+    - ../TestFiles/scripts/index.js:/command/index.js
+    networks:
+      - books
+    environment:
+    - MONGO_URI=mongodb://mongo:27017
+    - MONGO_DB=BookstoreDb
+    - MONGO_COLL=Books
+    - TEST_TYPE=ApiTests
+    entrypoint: /command/import.sh
+
+  webv:
+    image: retaildevcrew/webvalidate@sha256:183228cb62915e7ecac72fa0746fed4f7127a546428229291e6eeb202b2a5973
+    depends_on:
+    - mongo
+    - booksapi
+    volumes:
+    - ../TestFiles:/testFiles/
+    - ../TestFiles/scripts/executeTests.sh:/command/executeTests.sh
+    networks:
+      - books
+    environment:
+    - TEST_TYPE=ApiTests
+    - TEST_SVC_ENDPOINT=http://booksapi
+    - TEST_DATA_LOAD_DELAY=25
+    entrypoint: ["/bin/sh","/command/executeTests.sh"]
+
+
+networks:
+  books:
